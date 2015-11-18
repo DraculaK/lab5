@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -10,6 +12,9 @@ struct colloid{
 };
 
 void init(colloid* const c, const int N);
+void cond(int* rx,int* ry,const int N);
+void push(colloid* const c,const int N,int* rx, int* ry);
+void varmean(colloid* const c,const int N, double& meanx, double& meany, double& var);
 void print(const colloid* const c, const int N, const string fname);
 
 int main(void){
@@ -44,9 +49,13 @@ int main(void){
     
     for(int i = 1; i <= Nfiles; i++){
 	for(int j = 0; j < Nsubsteps; j++){
-	    // call to function which randomly sets up rx and ry
-	    // call to function which pushes all colloids according to rx and ry
-	    // call to function which evaluates statistics
+	    
+	  cond(rx,ry,N);			// call to function which randomly sets up rx and ry
+	  
+	  push(c,N,rx,ry);			// call to function which pushes all colloids according to rx and ry
+	  
+	  varmean(c,N,meanx,meany,var);		// call to function which evaluates statistics
+	  
 	    stat << (i-1)*Nsubsteps+j << "\t" << meanx << "\t";
 	    stat << meany << "\t" << var << endl;
 	}
@@ -56,7 +65,9 @@ int main(void){
     }
     
     stat.close();			// close statistics file
-    delete[] rx,ry,c;			// delete dynamically allocated arrays
+    delete[] rx;
+    delete[] ry;
+    delete[] c;			// delete dynamically allocated arrays
     return 0;
 }
 
@@ -67,6 +78,41 @@ void init(colloid* const c, const int N){
     }
 }
 
+void cond(int* rx,int* ry,const int N){
+
+  for(int i=0;i<N;i++){
+  rx[i]=int (3*double(rand())/RAND_MAX)-1;
+  ry[i]=int (3*double(rand())/RAND_MAX)-1;
+    
+  }   
+}
+
+void push(colloid* const c,const int N,int* rx, int* ry){
+  for(int i=0;i<N;i++){
+  c[i].x+=rx[i];
+  c[i].y+=ry[i];
+  }
+}
+
+void varmean(colloid* const c,const int N, double& meanx, double& meany, double& var){
+  double sumx=0;
+  double sumy=0;
+  for(int i=0; i<N; i++){
+   sumx+=c[i].x;
+   sumy+=c[i].y;
+  }
+  meanx = sumx/N;
+  meany = sumy/N;
+  
+  double varx=0;
+  double vary=0;
+  for(int i=0; i<N; i++){
+  varx+=pow(c[i].x-meanx,2.0);
+  vary+=pow(c[i].y-meany,2.0);
+  }
+  var = (varx+vary)/(2.0*N);
+}
+ 
 void print(const colloid* const c, const int N, const string fname){
     ofstream out(fname.c_str());
     for(int i = 0; i < N; i++)
