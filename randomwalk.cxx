@@ -95,14 +95,14 @@ void push(colloid* const c,const int N,int* rx, int* ry){
 }
 
 void varmean(colloid* const c,const int N, double& meanx, double& meany, double& var){
-  double sumx=0;
-  double sumy=0;
+  meanx=0;
+  meany=0;
   for(int i=0; i<N; i++){
-   sumx+=c[i].x;
-   sumy+=c[i].y;
+   meanx += c[i].x;
+   meany += c[i].y;
   }
-  meanx = sumx/N;
-  meany = sumy/N;
+  meanx /= N;
+  meany /= N;
   
   double varx=0;
   double vary=0;
